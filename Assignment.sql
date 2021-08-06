@@ -92,7 +92,7 @@ CREATE PROCEDURE DELETE_ALL_CUSTOMER AS
 BEGIN TRY 
     DELETE CUSTOMER
     WHERE CUSTOMER.CUSTID = CUSTID
-    SELECT @@ROWCOUNT
+    RETURN @@ROWCOUNT
 END TRY 
 BEGIN CATCH 
     IF ERROR_NUMBER() = ERROR_NUMBER()
@@ -103,7 +103,24 @@ GO
 
 
 
-CREATE PROCEDURE ADD_PRODUCT @pprodid INT AS
+CREATE PROCEDURE ADD_PRODUCT @pprodid INT, @pprodname NVARCHAR(100), @pprice MONEY AS
 BEGIN 
+    
+    IF @pprodid  < 1000 OR @pprodid > 2500
+    THROW 50040, 'Product ID out of range', 1
+
+    IF @pprice < 0 or @pprice > 999.99
+    throw 50050, 'Price out of range', 1 
+END TRY
+BEGIN CATCH
+
+    IF ERROR_NUMBER() = 2627
+    THROW 50030, 'Duplicate productID', 1 
+    
+    ELSE IF ERROR_MESSAGE() = ERROR_MESSAGE()
+    THROW 50000, 'Use Value of error_message()' 
+END CATCH; 
+    
+
 
 END;
